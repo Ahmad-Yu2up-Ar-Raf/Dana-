@@ -1,4 +1,4 @@
-import { SignUpForm } from '@/components/sign-up-form';
+import { SignUpForm } from '@/components/ui/core/feature/auth/sign-up-form';
 import * as React from 'react';
 import { ScrollView, View } from 'react-native';
 

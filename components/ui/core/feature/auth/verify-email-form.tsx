@@ -1,8 +1,14 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Text } from '@/components/ui/text';
+import { Button } from '@/components/ui/fragments/shadcn-ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/fragments/shadcn-ui/card';
+import { Input } from '@/components/ui/fragments/shadcn-ui/input';
+import { Label } from '@/components/ui/fragments/shadcn-ui/label';
+import { Text } from '@/components/ui/fragments/shadcn-ui/text';
 import { useSignUp } from '@clerk/clerk-expo';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as React from 'react';

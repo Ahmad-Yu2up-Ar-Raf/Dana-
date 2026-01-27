@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { Icon } from '@/components/ui/icon';
-import { Text } from '@/components/ui/text';
-import { UserMenu } from '@/components/user-menu';
+import { Button } from '@/components/ui/fragments/shadcn-ui/button';
+import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
+import { Text } from '@/components/ui/fragments/shadcn-ui/text';
+import { UserMenu } from '@/components/ui/core/feature/auth/user-menu';
 import { useUser } from '@clerk/clerk-expo';
 import { Link, Stack } from 'expo-router';
 import { MoonStarIcon, XIcon, SunIcon } from 'lucide-react-native';
@@ -39,7 +39,7 @@ export default function Screen() {
 
   return (
     <>
-      <Stack.Screen options={SCREEN_OPTIONS} />
+   
       <View className="flex-1 items-center justify-center gap-8 p-4">
         <View className="flex-row items-center justify-center gap-3.5">
           <Image
@@ -61,7 +61,7 @@ export default function Screen() {
         <View className="gap-2">
           <Link href="https://go.clerk.com/8e6CCee" asChild>
             <Button size="sm">
-              <Text>Explore Clerk Docs</Text>
+              <Text>sd</Text>
             </Button>
           </Link>
         </View>

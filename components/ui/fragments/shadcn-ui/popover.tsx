@@ -1,5 +1,5 @@
-import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
-import { TextClassContext } from '@/components/ui/text';
+import { NativeOnlyAnimatedView } from '@/components/ui/fragments/shadcn-ui/native-only-animated-view';
+import { TextClassContext } from '@/components/ui/fragments/shadcn-ui/text';
 import { cn } from '@/lib/utils';
 import * as PopoverPrimitive from '@rn-primitives/popover';
 import * as React from 'react';
