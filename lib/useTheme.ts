@@ -1,64 +1,55 @@
-import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
 
 /**
- * ✅ MAIN THEME HOOK
+ * ✅ LIGHT MODE ONLY THEME HOOK
  *
- * Primary hook buat theme controls dan checks
+ * This app only supports light mode.
+ * Dark mode functionality has been removed.
  */
 export function useTheme() {
-  const { colorScheme, setColorScheme, toggleColorScheme } = useColorScheme();
-
   return {
-    // Current theme mode
-    theme: colorScheme ?? 'light',
-    isDark: colorScheme === 'dark',
-    isLight: colorScheme === 'light',
+    // Always light mode
+    theme: 'light' as const,
+    isDark: false,
+    isLight: true,
 
-    // Theme controls
-    setTheme: setColorScheme,
-    toggleTheme: toggleColorScheme,
-
-    // Utility setters
-    setLight: () => setColorScheme('light'),
-    setDark: () => setColorScheme('dark'),
-    setSystem: () => setColorScheme('system'),
+    // No-op functions (kept for backward compatibility)
+    setTheme: () => {},
+    toggleTheme: () => {},
+    setLight: () => {},
+    setDark: () => {},
+    setSystem: () => {},
   };
 }
 
 /**
- * ✅ HOOK BUAT AKSES THEME MODE ONLY
+ * ✅ ALWAYS RETURNS 'light'
  */
 export function useThemeMode() {
-  const { colorScheme } = useColorScheme();
-  return colorScheme ?? 'light';
+  return 'light' as const;
 }
 
 /**
- * ✅ HOOK BUAT CHECK DARK MODE
+ * ✅ ALWAYS RETURNS false (never dark)
  */
 export function useIsDark() {
-  const { colorScheme } = useColorScheme();
-  return colorScheme === 'dark';
+  return false;
 }
 
 /**
- * ✅ LEGACY SUPPORT: useThemeColors
+ * ✅ THEME COLORS - LIGHT MODE ONLY
  *
- * Kept for backward compatibility dengan components yang belum di-migrate.
- * Hook ini sekarang proper react ke theme changes!
+ * Returns theme colors from THEME.light
+ * Kept for backward compatibility with existing components.
  *
- * RECOMMENDED: Pake className instead untuk new code!
+ * RECOMMENDED: Use Tailwind classes instead!
  * <View className="bg-background" /> is better than:
  * const { background } = useThemeColors();
  * <View style={{ backgroundColor: background }} />
  */
 export function useThemeColors() {
-  const { colorScheme } = useColorScheme();
-  const scheme = colorScheme === 'dark' ? 'dark' : 'light';
-
-  // Helper function buat akses token
-  const token = (key: keyof typeof THEME.light) => THEME[scheme][key];
+  // Always use light theme
+  const token = (key: keyof typeof THEME.light) => THEME.light[key];
 
   return {
     // Basic colors
@@ -105,7 +96,7 @@ export function useThemeColors() {
     chart4: token('chart4'),
     chart5: token('chart5'),
 
-    // Aliases biar lebih gampang
+    // Aliases
     textColor: token('foreground'),
     mutedColor: token('muted'),
     borderColor: token('border'),
@@ -114,23 +105,19 @@ export function useThemeColors() {
 }
 
 /**
- * ✅ LEGACY SUPPORT: useThemeColor
+ * ✅ GET SINGLE COLOR - LIGHT MODE ONLY
  *
- * Hook simplified buat dapetin satu warna aja kalo butuh
  * Usage: const primary = useThemeColor('primary');
  */
 export function useThemeColor(key: keyof typeof THEME.light) {
-  const { colorScheme } = useColorScheme();
-  const scheme = colorScheme === 'dark' ? 'dark' : 'light';
-  return THEME[scheme][key];
+  return THEME.light[key];
 }
 
 /**
- * ✅ HELPER: Get current color scheme
+ * ✅ ALWAYS RETURNS 'light'
  */
 export function useCurrentColorScheme() {
-  const { colorScheme } = useColorScheme();
-  return colorScheme ?? 'light';
+  return 'light' as const;
 }
 
 // Export default as useTheme for convenience

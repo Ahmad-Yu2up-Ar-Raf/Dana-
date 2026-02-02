@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
-import { Image, Platform,  type ImageSourcePropType } from 'react-native';
+import { Image, Platform, type ImageSourcePropType } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -74,14 +74,14 @@ export function SocialConnections() {
   }
 
   return (
-    <View className="relative   flex     flex-row gap-2 overflow-hidden sm:gap-3">
+    <View className="relative flex flex-row gap-2 overflow-hidden sm:gap-3">
       {SOCIAL_CONNECTION_STRATEGIES.map((strategy) => {
         return (
           <Button
             key={strategy.type}
             variant="outline"
             size="lg"
-            className=" justify-center px-[2.39em] sm:flex-1"
+            className="justify-center px-[2.30em] sm:flex-1"
             onPress={onSocialLoginPress(strategy.type)}>
             <Image
               className={cn('size-5', strategy.useTint && Platform.select({ web: 'dark:invert' }))}

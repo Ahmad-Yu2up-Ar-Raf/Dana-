@@ -1,20 +1,20 @@
-import { SocialConnections } from '@/components/ui/core/feature/auth/social-connections';
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
- 
+
 import {
   GroupedInput,
   GroupedInputItem,
 } from '@/components/ui/fragments/custom-ui/form/input-form';
- 
+import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
 import { useToast } from '@/components/ui/fragments/shadcn-ui/toast';
 import { useSignUp } from '@clerk/clerk-expo';
 import { router } from 'expo-router';
-import { Lock, Mail } from 'lucide-react-native';
+import { Eye, EyeOffIcon, Lock, Mail } from 'lucide-react-native';
 import * as React from 'react';
 import { TextInput, View } from 'react-native';
-import { Link } from '@/components/ui/fragments/shadcn-ui/link';
+
 import { useFormValidation, validationRules } from '@/hooks/Useformvalidation';
+import { cn } from '@/lib/utils';
 
 export function SignUpForm() {
   const { signUp, isLoaded } = useSignUp();
@@ -49,7 +49,7 @@ export function SignUpForm() {
         await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
 
         success('Verification Sent', 'Please check your email for the verification code.');
-        router.push(`/(auth)/sign-up/verify-email?email=${values.email}`);
+        router.push(`/(auth)/verify-email?email=${values.email}`);
       } catch (err) {
         if (err instanceof Error) {
           const isEmailMessage =
@@ -69,7 +69,7 @@ export function SignUpForm() {
       }
     },
   });
-
+  const [showPassword, setShowPassword] = React.useState(false);
   React.useEffect(() => {
     registerField({ name: 'email', rules: validationRules.email, ref: emailRef });
     registerField({ name: 'password', rules: validationRules.password, ref: passwordRef });
@@ -94,17 +94,47 @@ export function SignUpForm() {
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <GroupedInputItem
+          disabled={!isLoaded}
           ref={passwordRef}
           label="Password"
-          placeholder="••••••••"
+          placeholder="••••••"
           icon={Lock}
           value={formData.password}
           onChangeText={handleChange('password')}
           onBlur={handleBlur('password')}
           error={touched.password ? errors.password : undefined}
-          secureTextEntry
-          returnKeyType="send"
+          secureTextEntry={!showPassword}
           onSubmitEditing={handleSubmit}
+          returnKeyType="send"
+          rightComponent={
+            <Button
+              disabled={!isLoaded}
+              variant="ghost"
+              className="absolute right-0 bg-none"
+              onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <Icon
+                  className={cn(
+                    errors.password && touched.password
+                      ? 'text-destructive'
+                      : 'text-muted-foreground'
+                  )}
+                  as={Eye}
+                  size={22}
+                />
+              ) : (
+                <Icon
+                  className={cn(
+                    errors.password && touched.password
+                      ? 'text-destructive'
+                      : 'text-muted-foreground'
+                  )}
+                  as={EyeOffIcon}
+                  size={22}
+                />
+              )}
+            </Button>
+          }
         />
       </GroupedInput>
 

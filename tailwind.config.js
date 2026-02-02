@@ -2,18 +2,18 @@ const { hairlineWidth } = require('nativewind/theme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // ✅ CRITICAL: Dark mode menggunakan class strategy
-  darkMode: 'class',
+  // ✅ REMOVED: darkMode config - Light mode only
+  // darkMode: 'class', // REMOVED
 
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
 
-  // ✅ Nativewind preset wajib ada
+  // ✅ Nativewind preset
   presets: [require('nativewind/preset')],
 
   theme: {
     extend: {
       colors: {
-        // ✅ Semua color tokens auto-resolve ke CSS variables
+        // ✅ All color tokens use CSS variables (light mode only)
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

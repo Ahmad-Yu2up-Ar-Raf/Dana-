@@ -1,5 +1,4 @@
 import { Onboarding, useOnboarding } from '@/components/ui/fragments/shadcn-ui/onboarding';
-import { Text } from '../../fragments/shadcn-ui/text';
 
 import { Redirect } from 'expo-router';
 import Onboarding1 from '@/assets/svg/onboarding/onboarding-1';

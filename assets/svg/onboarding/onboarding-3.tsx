@@ -9,15 +9,15 @@ interface SVGRProps {
   descId?: string;
 }
 const OnboardingThird = ({ title, titleId, desc, descId, ...props }: SvgProps & SVGRProps) => {
-  const tintColor = useThemeColor({ light: THEME.light.primary, dark: THEME.dark.primary });
+  const tintColor = useThemeColor({ light: THEME.light.primary, dark: THEME.light.primary });
 
   const background = useThemeColor({
     light: THEME.light.background,
     dark: THEME.light.background,
   });
   const muted = useThemeColor({
-    light: THEME.dark.muted,
-    dark: THEME.dark.muted,
+    light: THEME.light.muted,
+    dark: THEME.light.muted,
   });
   const mutedForeground = useThemeColor({
     light: THEME.light.mutedForeground,

@@ -15,6 +15,7 @@ import { TextInput } from 'react-native';
 import { useFormValidation, validationRules } from '@/hooks/Useformvalidation';
 import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
 import { cn } from '@/lib/utils';
+import { Link } from '@/components/ui/fragments/shadcn-ui/link';
 
 export function SignInForm() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -144,6 +145,9 @@ export function SignInForm() {
             </Button>
           }
         />
+        {/* <Link href={'/(auth)/forgot-password'} className="underline underline-offset-4">
+          Forgot Password ?
+        </Link> */}
       </GroupedInput>
 
       <Button disabled={!isLoaded} className="w-full" onPress={handleSubmit}>

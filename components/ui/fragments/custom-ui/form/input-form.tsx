@@ -54,7 +54,7 @@ export const GroupedInput = ({
         </Text>
       )}
 
-      <View className="gap-5">
+      <View className="gap-6">
         {childrenArray.map((child, index) => (
           <View
             key={index}
@@ -192,7 +192,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
             <View
               className={cn(
                 'flex-1 flex-row items-center gap-2 rounded-xl border border-muted-foreground/50',
-                error && 'border-destructive text-destructive'
+                error && 'border-destructive'
               )}>
               <View className="sr-only flex-row items-center gap-2" pointerEvents="none">
                 {icon && (
@@ -213,27 +213,27 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
                 )}
               </View>
 
-              <View className="relative flex-1">
-                {/* <Label
+              <View className={cn('relative flex-1')}>
+                <Label
                   className={cn(
-                    'peer-focus:secondary peer-focus:dark:secondary absolute start-1 top-1 z-10 origin-[0] -translate-y-4 scale-75 transform cursor-text bg-background px-2 text-lg capitalize text-muted-foreground duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 dark:bg-foreground dark:text-muted-foreground rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4',
+                    'peer-focus:secondary peer-focus:dark:secondary absolute start-1 top-1 z-10 origin-[0] -translate-y-5 scale-75 transform cursor-text bg-background px-2 text-lg capitalize text-muted-foreground duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 dark:bg-foreground dark:text-muted-foreground rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4',
 
                     error && 'border-destructive text-destructive dark:text-destructive'
                   )}
                   nativeID={label}
                   htmlFor={label}>
                   {label}
-                </Label> */}
+                </Label>
                 <TextInput
                   nativeID={label}
                   // error={error}
                   ref={ref}
-                  placeholder={placeholder}
+                  // placeholder={placeholder}
                   editable={!disabled}
                   selectionColor={primary as any}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
-                  className={cn(error && 'placeholder:text-destructive', 'text-destructive')}
+                  className={cn(error && 'text-destructive placeholder:text-destructive')}
                   {...props}
                 />
               </View>

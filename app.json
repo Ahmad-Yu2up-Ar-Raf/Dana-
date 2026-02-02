@@ -1,35 +1,63 @@
 {
   "expo": {
-    "name": "TechXperience",
-    "slug": "TechXperience",
+    "name": "Dana",
+    "slug": "Dana",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "TechXperience",
-    "userInterfaceStyle": "automatic",
+
+    // ✅ FORCE LIGHT MODE ONLY - This is the KEY setting
+    "userInterfaceStyle": "light",
+
     "newArchEnabled": true,
+
+    // ✅ SPLASH SCREEN - Only image, no title
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "assetBundlePatterns": ["**/*"],
+
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      // ✅ iOS specific: Force light mode
+      "userInterfaceStyle": "light"
     },
+
     "android": {
       "edgeToEdgeEnabled": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      // ✅ Android specific: Force light mode
+      "userInterfaceStyle": "light"
     },
+
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-web-browser"],
+
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-web-browser",
+      [
+        "expo-splash-screen",
+        {
+          // ✅ White background for light mode
+          "backgroundColor": "#ffffff",
+          "image": "./assets/images/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ]
+    ],
+
     "experiments": {
       "typedRoutes": true
     }

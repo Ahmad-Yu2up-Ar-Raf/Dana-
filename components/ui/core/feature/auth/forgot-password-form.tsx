@@ -6,7 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/fragments/shadcn-ui/card';
-import { GroupedInput, GroupedInputItem } from '@/components/ui/fragments/custom-ui/form/input-form';
+import {
+  GroupedInput,
+  GroupedInputItem,
+} from '@/components/ui/fragments/custom-ui/form/input-form';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
 import { useToast } from '@/components/ui/fragments/shadcn-ui/toast';
 import { useSignIn } from '@clerk/clerk-expo';
@@ -66,38 +69,26 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <View className="gap-6">
-      <Card className="border-border/0 shadow-none sm:border-border sm:shadow-sm sm:shadow-black/5">
-        <CardHeader>
-          <CardTitle className="text-center text-xl sm:text-left">Forgot password?</CardTitle>
-          <CardDescription className="text-center sm:text-left">
-            Enter your email to reset your password
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="gap-6">
-          <View className="gap-6">
-            <GroupedInput>
-              <GroupedInputItem
-                label="Email"
-                placeholder="m@example.com"
-                icon={Mail}
-                value={email}
-                onChangeText={setEmail}
-                error={error}
-                keyboardType="email-address"
-                autoComplete="email"
-                autoCapitalize="none"
-                returnKeyType="send"
-                onSubmitEditing={onSubmit}
-              />
-            </GroupedInput>
+    <>
+      <GroupedInput>
+        <GroupedInputItem
+          label="Email"
+          placeholder="m@example.com"
+          icon={Mail}
+          value={email}
+          onChangeText={setEmail}
+          error={error}
+          keyboardType="email-address"
+          autoComplete="email"
+          autoCapitalize="none"
+          returnKeyType="send"
+          onSubmitEditing={onSubmit}
+        />
+      </GroupedInput>
 
-            <Button className="w-full" onPress={onSubmit}>
-              <Text>Reset your password</Text>
-            </Button>
-          </View>
-        </CardContent>
-      </Card>
-    </View>
+      <Button className="w-full" onPress={onSubmit}>
+        <Text>Reset your password</Text>
+      </Button>
+    </>
   );
 }

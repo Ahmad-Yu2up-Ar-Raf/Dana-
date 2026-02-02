@@ -1,11 +1,14 @@
-import Provider from '@/components/provider/provider';
 import '@/global.css';
 
+import { ThemeProvider } from '@react-navigation/native';
+import { PortalHost } from '@rn-primitives/portal';
+import { StatusBar } from 'expo-status-bar';
+import { NAV_THEME } from '@/lib/theme';
+import { tokenCache } from '@clerk/clerk-expo/token-cache';
+import { ToastProvider } from '@/components/ui/fragments/shadcn-ui/toast';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
-
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-
 import * as React from 'react';
 
 export {
@@ -14,14 +17,29 @@ export {
 } from 'expo-router';
 
 export default function RootLayout() {
+  // ✅ FORCE LIGHT MODE - No dark mode support
+  // colorScheme will always be 'light'
+
   return (
-    <Provider>
-      <Routes />
-    </Provider>
+    <ClerkProvider tokenCache={tokenCache}>
+      {/* ✅ Always use light theme */}
+      <ThemeProvider value={NAV_THEME.light}>
+        {/* ✅ Always use dark status bar (for light background) */}
+        <StatusBar style="dark" />
+        <ToastProvider>
+          <Routes />
+        </ToastProvider>
+        <PortalHost />
+      </ThemeProvider>
+    </ClerkProvider>
   );
 }
 
-SplashScreen.preventAutoHideAsync();
+// ✅ Splash Screen Configuration
+SplashScreen.setOptions({
+  duration: 1000,
+  fade: true,
+});
 
 function Routes() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -43,6 +61,7 @@ function Routes() {
         <Stack.Screen name="index" options={SIGN_IN_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/sign-in" options={SIGN_IN_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/sign-up" options={SIGN_UP_SCREEN_OPTIONS} />
+        <Stack.Screen name="(auth)/verify-email" options={DEFAULT_AUTH_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/reset-password" options={DEFAULT_AUTH_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/forgot-password" options={DEFAULT_AUTH_SCREEN_OPTIONS} />
       </Stack.Protected>
@@ -63,10 +82,8 @@ const SIGN_IN_SCREEN_OPTIONS = {
 };
 
 const SIGN_UP_SCREEN_OPTIONS = {
-  presentation: 'modal',
-  title: '',
-  headerTransparent: true,
-  gestureEnabled: false,
+  title: 'Sign up',
+  headerShown: false,
 } as const;
 
 const DEFAULT_AUTH_SCREEN_OPTIONS = {
