@@ -36,11 +36,7 @@ export default function RootLayout() {
 }
 
 // ✅ Splash Screen Configuration
-SplashScreen.setOptions({
-  duration: 1000,
-  fade: true,
-});
-
+SplashScreen.preventAutoHideAsync();
 function Routes() {
   const { isSignedIn, isLoaded } = useAuth();
 
@@ -88,6 +84,5 @@ const SIGN_UP_SCREEN_OPTIONS = {
 
 const DEFAULT_AUTH_SCREEN_OPTIONS = {
   title: '',
-  headerShadowVisible: false,
-  headerTransparent: true,
+  headerShown: false,
 };

@@ -16,12 +16,13 @@ import { useFormValidation, validationRules } from '@/hooks/Useformvalidation';
 import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
 import { cn } from '@/lib/utils';
 import { Link } from '@/components/ui/fragments/shadcn-ui/link';
+import { Spinner } from '@/components/ui/fragments/shadcn-ui/spinner';
 
 export function SignInForm() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const { success, error: showError } = useToast();
   const [showPassword, setShowPassword] = React.useState(false);
-
+  const [isLoading, setLoading] = React.useState(false);
   // 🔥 Field refs for auto-focus
   const emailRef = React.useRef<TextInput>(null!);
   const passwordRef = React.useRef<TextInput>(null!);
@@ -42,6 +43,7 @@ export function SignInForm() {
       password: '',
     },
     onSubmit: async (values) => {
+      setLoading(true);
       if (!isLoaded) return;
 
       try {
@@ -57,6 +59,7 @@ export function SignInForm() {
         }
 
         console.error(JSON.stringify(signInAttempt, null, 2));
+        setLoading(false);
       } catch (err) {
         if (err instanceof Error) {
           const isEmailMessage =
@@ -72,6 +75,7 @@ export function SignInForm() {
           return;
         }
         console.error(JSON.stringify(err, null, 2));
+        setLoading(false);
         showError('Error', 'An unexpected error occurred. Please try again.');
       }
     },
@@ -87,11 +91,11 @@ export function SignInForm() {
     <>
       <GroupedInput>
         <GroupedInputItem
-          disabled={!isLoaded}
+          disabled={isLoading}
           ref={emailRef}
           label="Email"
+          // showError={false}
           placeholder="m@example.com"
-          icon={Mail}
           value={formData.email}
           onChangeText={handleChange('email')}
           onBlur={handleBlur('email')}
@@ -103,11 +107,11 @@ export function SignInForm() {
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <GroupedInputItem
-          disabled={!isLoaded}
+          disabled={isLoading}
           ref={passwordRef}
           label="Password"
           placeholder="••••••"
-          icon={Lock}
+          // showError={false}
           value={formData.password}
           onChangeText={handleChange('password')}
           onBlur={handleBlur('password')}
@@ -117,7 +121,7 @@ export function SignInForm() {
           onSubmitEditing={handleSubmit}
           rightComponent={
             <Button
-              disabled={!isLoaded}
+              disabled={isLoading}
               variant="ghost"
               className="absolute right-0 bg-none"
               onPress={() => setShowPassword(!showPassword)}>
@@ -145,13 +149,14 @@ export function SignInForm() {
             </Button>
           }
         />
-        {/* <Link href={'/(auth)/forgot-password'} className="underline underline-offset-4">
+        <Link href={'/(auth)/forgot-password'} className="underline text-sm underline-offset-4">
           Forgot Password ?
-        </Link> */}
+        </Link>
       </GroupedInput>
 
-      <Button disabled={!isLoaded} className="w-full" onPress={handleSubmit}>
-        <Text>Continue</Text>
+      <Button disabled={isLoading} className="w-full gap-5" onPress={handleSubmit}>
+        {isLoading && <Spinner className="size-2" variant="default" size="sm" />}
+        <Text>{isLoading ? 'Signing In...' : 'Sign In'}</Text>
       </Button>
     </>
   );

@@ -16,9 +16,10 @@ const Wellcome = ({ title, titleId, desc, descId, ...props }: SvgProps & SVGRPro
    * ✅ FIXED: Direct THEME access tanpa useThemeColor
    * Ini lebih clean dan proper react to theme changes
    */
-  const currentTheme = colorScheme === 'light' ? 'light' : 'light';
-  const tintColor = THEME[currentTheme].primary;
- 
+
+  const tintColor = THEME.light.primary;
+  const foreground = THEME.light.primary;
+
   return (
     <Svg
       width={750}

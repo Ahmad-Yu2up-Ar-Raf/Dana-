@@ -10,7 +10,7 @@ import { Link } from '@/components/ui/fragments/shadcn-ui/link';
 import Logo from '@/assets/svg/brand/logo';
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
 import Email from '@/assets/svg/icon/email';
- 
+
 type VectorIconFamily = {
   getImageSource: (name: string, size: number, color: ColorValue) => Promise<ImageSourcePropType>;
 };
@@ -19,10 +19,9 @@ const SCREEN_OPTIONS = {
   header: () => (
     <View
       pointerEvents="box-none"
-      className="top-safe sticky left-0 right-0 flex-row justify-between px-5 py-2 web:mx-2">
+      className="top-safe relative left-0 right-0 flex-row justify-between px-5 py-6 web:mx-2">
       <LogoApp />
       <Notif />
-      
     </View>
   ),
 };
@@ -136,7 +135,7 @@ function Notif() {
       <View
         className="absolute -right-1 -top-0.5 size-2.5 rounded-full border-2 border-background bg-primary fill-primary"
         style={{
-          backgroundColor: '#2563eb',
+          backgroundColor: '#108bea',
         }}
       />
     </Button>

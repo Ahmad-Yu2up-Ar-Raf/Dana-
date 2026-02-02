@@ -1,8 +1,6 @@
 import { cn } from '@/lib/utils';
-import { Icon } from '../../shadcn-ui/icon';
 import { Text } from '../../shadcn-ui/text';
-import type { LucideIcon } from 'lucide-react-native';
-import React, { forwardRef, ReactElement, useState } from 'react';
+import React, { forwardRef, ReactElement, useState, useEffect } from 'react';
 import {
   Pressable,
   TextInput as TextInputB,
@@ -10,14 +8,23 @@ import {
   View,
   TextStyle,
   ViewStyle,
-  Platform,
 } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
 import { Input as TextInput } from '../../shadcn-ui/input';
 import { Textarea } from '../../shadcn-ui/textarea';
-import { Label } from '../../shadcn-ui/label';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  interpolate,
+  interpolateColor,
+} from 'react-native-reanimated';
 
+// ============================================
+// GroupedInput Component
+// ============================================
 export interface GroupedInputProps {
   children: React.ReactNode;
   containerStyle?: ViewStyle;
@@ -31,12 +38,6 @@ export const GroupedInput = ({
   title,
   titleStyle,
 }: GroupedInputProps) => {
-  const { colorScheme } = useColorScheme();
-  const scheme = colorScheme === 'dark' ? 'dark' : 'light';
-  const token = (k: keyof typeof THEME.light) => (THEME as any)[scheme][k];
-  const border = token('border');
-  const background = token('card');
-
   const childrenArray = React.Children.toArray(children);
 
   const errors = childrenArray
@@ -54,22 +55,16 @@ export const GroupedInput = ({
         </Text>
       )}
 
-      <View className="gap-6">
+      <View className="gap-4">
         {childrenArray.map((child, index) => (
-          <View
-            key={index}
-            className={cn(
-              'justify-center'
-
-              // index !== childrenArray.length - 1 ? 'border-b border-border' : ''
-            )}>
+          <View key={index} className="justify-center">
             {child}
           </View>
         ))}
       </View>
 
-      {errors.length > 0 && (
-        <View className="sr-only mt-[6px]">
+      {/* {errors.length > 0 && (
+        <View className="mt-[6px]">
           {errors.map((error, i) => (
             <Text
               key={i}
@@ -78,15 +73,17 @@ export const GroupedInput = ({
             </Text>
           ))}
         </View>
-      )}
+      )} */}
     </View>
   );
 };
 
+// ============================================
+// GroupedInputItem Component with Smooth Animation
+// ============================================
 export interface GroupedInputItemProps extends Omit<TextInputProps, 'style'> {
   label?: string;
   error?: string;
-  icon?: LucideIcon;
   rightComponent?: React.ReactNode | (() => React.ReactNode);
   inputStyle?: TextStyle;
   labelStyle?: TextStyle;
@@ -103,7 +100,6 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
       showError = true,
       label,
       error,
-      icon,
       rightComponent,
       inputStyle,
       labelStyle,
@@ -114,6 +110,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
       onFocus,
       onBlur,
       placeholder,
+      value,
       ...props
     },
     ref
@@ -124,8 +121,50 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
     const token = (k: keyof typeof THEME.light) => (THEME as any)[scheme][k];
 
     const primary = token('primary');
+    const mutedForeground = token('mutedForeground');
+    const destructive = token('destructive');
+    const background = token('background');
 
     const isTextarea = type === 'textarea';
+
+    // Kondisi untuk floating label
+    const shouldFloat = isFocused || (value && value.toString().length > 0);
+
+    // Shared values untuk animasi
+    const animationProgress = useSharedValue(0);
+
+    // Update animasi saat shouldFloat berubah
+    useEffect(() => {
+      animationProgress.value = withSpring(shouldFloat ? 1 : 0, {
+        damping: 20,
+        stiffness: 300,
+        mass: 0.5,
+      });
+    }, [shouldFloat]);
+
+    // Animated style untuk label
+    const animatedLabelStyle = useAnimatedStyle(() => {
+      // Interpolate translateY: dari tengah (10) ke atas (-10)
+      const translateY = interpolate(animationProgress.value, [0, 1], [10, -10]);
+
+      // Interpolate scale: dari normal (1) ke kecil (0.75)
+      const scale = interpolate(animationProgress.value, [0, 1], [1, 0.75]);
+
+      // Interpolate color
+      let labelColor;
+      if (error) {
+        // Kalau error, tetap merah
+        labelColor = destructive;
+      } else {
+        // Interpolate dari muted ke primary saat focus
+        labelColor = interpolateColor(animationProgress.value, [0, 1], [mutedForeground, primary]);
+      }
+
+      return {
+        transform: [{ translateY }, { scale }],
+        color: labelColor,
+      };
+    });
 
     const handleFocus = (e: any) => {
       setIsFocused(true);
@@ -147,19 +186,12 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
         onPress={() => ref && 'current' in ref && ref.current?.focus()}
         disabled={disabled}
         className={cn(disabled ? 'opacity-60' : 'opacity-100')}>
-        <View className={cn('flex flex-col gap-1.5')}>
+        <View className="flex flex-col gap-1.5">
           {isTextarea ? (
             <>
-              {(icon || label || rightComponent) && (
+              {(label || rightComponent) && (
                 <View className="mb-2 flex-row items-center gap-2">
-                  <View className="sr-only flex-1 flex-row items-center gap-2" pointerEvents="none">
-                    {icon && (
-                      <Icon
-                        as={icon}
-                        size={16}
-                        className={cn(error ? 'text-destructive' : 'text-muted-foreground')}
-                      />
-                    )}
+                  <View className="flex-1 flex-row items-center gap-2" pointerEvents="none">
                     {label && (
                       <Text
                         variant="small"
@@ -181,6 +213,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
                 selectionColor={primary as any}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                value={value}
                 className={cn(
                   'border-0',
                   error && 'border-destructive text-destructive placeholder:text-destructive'
@@ -191,60 +224,62 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
           ) : (
             <View
               className={cn(
-                'flex-1 flex-row items-center gap-2 rounded-xl border border-muted-foreground/50',
-                error && 'border-destructive'
+                'relative flex-row items-center rounded-lg border',
+                // PRIORITY: Error > Focus > Default
+                error
+                  ? 'border-destructive' // Error tetap merah meski focused
+                  : isFocused
+                    ? 'border-primary' // Focus biru kalau gak error
+                    : 'border-muted-foreground/50' // Default
               )}>
-              <View className="sr-only flex-row items-center gap-2" pointerEvents="none">
-                {icon && (
-                  <Icon
-                    as={icon}
-                    size={16}
-                    className={cn(error ? 'text-destructive' : 'text-muted-foreground')}
-                  />
-                )}
+              <View className="relative flex-1">
+                {/* Animated Floating Label */}
                 {label && (
-                  <Text
-                    variant="small"
-                    className={cn(error ? 'text-destructive' : 'text-muted-foreground')}
-                    numberOfLines={1}
-                    ellipsizeMode="tail">
+                  <Animated.Text
+                    style={[
+                      {
+                        position: 'absolute',
+                        left: 12,
+                        paddingHorizontal: 4,
+                        backgroundColor: background,
+                        zIndex: 1,
+                        fontSize: 14,
+                        fontWeight: '400',
+                      },
+                      animatedLabelStyle,
+                    ]}>
                     {label}
-                  </Text>
+                  </Animated.Text>
                 )}
-              </View>
 
-              <View className={cn('relative flex-1')}>
-                <Label
-                  className={cn(
-                    'peer-focus:secondary peer-focus:dark:secondary absolute start-1 top-1 z-10 origin-[0] -translate-y-5 scale-75 transform cursor-text bg-background px-2 text-lg capitalize text-muted-foreground duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 dark:bg-foreground dark:text-muted-foreground rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4',
-
-                    error && 'border-destructive text-destructive dark:text-destructive'
-                  )}
-                  nativeID={label}
-                  htmlFor={label}>
-                  {label}
-                </Label>
                 <TextInput
-                  nativeID={label}
-                  // error={error}
                   ref={ref}
-                  // placeholder={placeholder}
                   editable={!disabled}
                   selectionColor={primary as any}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
-                  className={cn(error && 'text-destructive placeholder:text-destructive')}
+                  value={value}
+                  className={cn(
+                    'border-0 bg-transparent',
+                    error && 'text-destructive',
+                    label && 'pt-1.5' // Padding top kalau ada label
+                  )}
                   {...props}
                 />
               </View>
+
               {renderRightComponent()}
             </View>
           )}
-          {error && showError && (
-            <Text className="mt-1 text-sm text-destructive dark:text-destructive">* {error}</Text>
-          )}
+
+          {error && showError && <Text className="mt-1 text-sm text-destructive">* {error}</Text>}
         </View>
       </Pressable>
     );
   }
 );
+
+// ============================================
+// SET DISPLAYNAME
+// ============================================
+GroupedInputItem.displayName = 'GroupedInputItem';

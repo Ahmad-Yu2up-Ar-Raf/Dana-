@@ -1,3 +1,4 @@
+import { THEME } from '@/lib/theme';
 import { Text } from './text';
 import { useThemeColors } from '@/lib/useTheme';
 import { cn } from '@/lib/utils';
@@ -82,7 +83,7 @@ const AnimatedBar = React.memo(({ anim, color, size, className }: AnimatedShapeP
 
   return (
     <Animated.View
-      className={cn('rounded-xl', className)}
+      className={cn('rounded-lg', className)}
       style={[{ width: size / 6, height: size, backgroundColor: color }, animatedStyle]}
     />
   );
@@ -115,10 +116,10 @@ export function Spinner({
     () => [barAnim1, barAnim2, barAnim3, barAnim4],
     [barAnim1, barAnim2, barAnim3, barAnim4]
   );
-
+  const tintColor = THEME.light.primaryForeground;
   const { foreground, primaryForeground } = useThemeColors();
   const config = sizeConfig[size];
-  const spinnerColor = color || foreground;
+  const spinnerColor = color || tintColor;
   const animationDuration = speedConfig[speed];
 
   useEffect(() => {
@@ -290,7 +291,7 @@ export function LoadingOverlay({
       className="absolute inset-0 z-[9999] items-center justify-center"
       style={[{ backgroundColor: backdrop ? backdropColor : 'transparent' }, animatedOverlayStyle]}
       pointerEvents={visible ? 'auto' : 'none'}>
-      <View className="p-15 rounded-xl" style={{ backgroundColor: card }}>
+      <View className="p-15 rounded-lg" style={{ backgroundColor: card }}>
         <Spinner {...spinnerProps} />
       </View>
     </Animated.View>

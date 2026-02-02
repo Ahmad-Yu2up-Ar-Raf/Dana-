@@ -374,7 +374,7 @@ export function CarouselContent({ children, className }: CarouselContentProps) {
 
 export function CarouselItem({ children, className }: CarouselItemProps) {
   return (
-    <View className={cn('min-h-[200px] rounded-xl border border-border bg-card p-4', className)}>
+    <View className={cn('min-h-[200px] rounded-lg border border-border bg-card p-4', className)}>
       {children}
     </View>
   );

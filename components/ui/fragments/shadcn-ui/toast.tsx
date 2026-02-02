@@ -11,8 +11,6 @@ import Animated, {
   withSpring,
   withTiming,
   Easing,
-  withSequence,
-  withDelay,
 } from 'react-native-reanimated';
 
 export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info';
@@ -32,36 +30,27 @@ export interface ToastData {
 interface ToastProps extends ToastData {
   onDismiss: (id: string) => void;
   index: number;
+  totalToasts: number;
 }
 
-const TOAST_HEIGHT = 70;
-const TOAST_GAP = 8;
-const MAX_TOASTS = 3; // 🔥 Limit maximum toasts
+const MAX_TOASTS = 3;
+const TOAST_OFFSET = 8;
+const TOAST_SCALE_FACTOR = 0.05;
 
-// 🔥 ULTRA SMOOTH ANIMATION CONFIGS
-const ULTRA_SMOOTH_SPRING = {
+const SPRING_CONFIG = {
   damping: 25,
   stiffness: 350,
   mass: 0.4,
-  overshootClamping: false,
-  restDisplacementThreshold: 0.001,
-  restSpeedThreshold: 0.001,
 };
 
-const SMOOTH_ENTER = {
-  duration: 350,
+const ENTER_TIMING = {
+  duration: 400,
   easing: Easing.bezier(0.25, 0.1, 0.25, 1),
 };
 
-// 🔥 NEW: Smooth exit animation config
-const SMOOTH_EXIT = {
+const EXIT_TIMING = {
   duration: 300,
-  easing: Easing.bezier(0.4, 0.0, 0.2, 1), // Material Design easing
-};
-
-const FADE_CONFIG = {
-  duration: 250,
-  easing: Easing.out(Easing.cubic),
+  easing: Easing.bezier(0.4, 0.0, 0.2, 1),
 };
 
 const VARIANT_ICONS: Record<ToastVariant, LucideIcon> = {
@@ -87,6 +76,7 @@ export function Toast({
   variant = 'default',
   onDismiss,
   index,
+  totalToasts,
   action,
 }: ToastProps) {
   const translateY = useSharedValue(-100);
@@ -94,11 +84,11 @@ export function Toast({
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.9);
 
-  // 🔥 SMOOTH ENTRANCE
+  // Entrance animation
   useEffect(() => {
-    translateY.value = withSpring(0, ULTRA_SMOOTH_SPRING);
-    opacity.value = withTiming(1, SMOOTH_ENTER);
-    scale.value = withSpring(1, ULTRA_SMOOTH_SPRING);
+    translateY.value = withSpring(0, SPRING_CONFIG);
+    opacity.value = withTiming(1, ENTER_TIMING);
+    scale.value = withSpring(1, SPRING_CONFIG);
   }, []);
 
   const getIcon = (): LucideIcon => VARIANT_ICONS[variant];
@@ -132,24 +122,23 @@ export function Toast({
     }
   };
 
-  // 🔥 ULTRA SMOOTH EXIT ANIMATION
+  // Smooth exit animation
   const dismiss = useCallback(() => {
     const onDismissAction = () => {
       'worklet';
       runOnJS(onDismiss)(id);
     };
 
-    // Exit: Fade + Scale down + Slide up smoothly
-    opacity.value = withTiming(0, SMOOTH_EXIT);
-    scale.value = withTiming(0.85, SMOOTH_EXIT);
-    translateY.value = withTiming(-40, SMOOTH_EXIT, (finished) => {
+    opacity.value = withTiming(0, EXIT_TIMING);
+    scale.value = withTiming(0.85, EXIT_TIMING);
+    translateY.value = withTiming(-40, EXIT_TIMING, (finished) => {
       if (finished) {
         onDismissAction();
       }
     });
   }, [id, onDismiss, opacity, scale, translateY]);
 
-  // 🔥 IMPROVED SWIPE GESTURE
+  // Swipe gesture
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
       translateX.value = event.translationX;
@@ -166,33 +155,35 @@ export function Toast({
         };
 
         const direction = translationX > 0 ? 400 : -400;
-
-        translateX.value = withTiming(direction, SMOOTH_EXIT);
-        opacity.value = withTiming(0, SMOOTH_EXIT, (finished) => {
+        translateX.value = withTiming(direction, EXIT_TIMING);
+        opacity.value = withTiming(0, EXIT_TIMING, (finished) => {
           if (finished) {
             onDismissAction();
           }
         });
       } else {
-        // Snap back smoothly
-        translateX.value = withSpring(0, ULTRA_SMOOTH_SPRING);
-        opacity.value = withTiming(1, FADE_CONFIG);
+        translateX.value = withSpring(0, SPRING_CONFIG);
+        opacity.value = withTiming(1, { duration: 200 });
       }
     });
 
-  const getTopPosition = () => {
-    const statusBarHeight = Platform.OS === 'ios' ? 59 : 20;
-    return statusBarHeight + index * (TOAST_HEIGHT + TOAST_GAP);
-  };
+  // Stacking calculation
+  const stackOffset = index * TOAST_OFFSET;
+  const stackScale = 1 - index * TOAST_SCALE_FACTOR;
+  const stackOpacity = index === 0 ? 1 : 0.8;
 
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [
-      { translateY: translateY.value },
-      { translateX: translateX.value },
-      { scale: scale.value },
-    ],
-  }));
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value * stackOpacity,
+      transform: [
+        { translateY: translateY.value + stackOffset },
+        { translateX: translateX.value },
+        { scale: scale.value * stackScale },
+      ],
+    };
+  });
+
+  const statusBarHeight = Platform.OS === 'ios' ? 59 : 20;
 
   return (
     <GestureDetector gesture={panGesture}>
@@ -201,8 +192,8 @@ export function Toast({
         style={[
           animatedContainerStyle,
           {
-            top: getTopPosition(),
-            zIndex: 1000 + index,
+            top: statusBarHeight,
+            zIndex: 1000 - index,
           },
         ]}>
         <Alert
@@ -224,7 +215,7 @@ export function Toast({
                     dismiss();
                   }}
                   className={cn(
-                    'rounded-xl px-3 py-1.5 active:opacity-70',
+                    'rounded-lg px-3 py-1.5 active:opacity-70',
                     getActionButtonClasses()
                   )}>
                   <AlertTitle className="mb-0 text-xs text-primary-foreground">
@@ -235,7 +226,7 @@ export function Toast({
 
               <TouchableOpacity
                 onPress={dismiss}
-                className="rounded-xl p-1 active:opacity-70"
+                className="rounded-lg p-1 active:opacity-70"
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                 <X size={16} className="text-muted-foreground" />
               </TouchableOpacity>
@@ -266,8 +257,20 @@ interface ToastProviderProps {
 
 export function ToastProvider({ children, maxToasts = MAX_TOASTS }: ToastProviderProps) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
+  // Fix: Use number instead of NodeJS.Timeout for React Native
+  const timersRef = React.useRef<Map<string, number>>(new Map());
 
   const generateId = () => Math.random().toString(36).substring(2, 11);
+
+  const dismissToast = useCallback((id: string) => {
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
+
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
   const addToast = useCallback(
     (toastData: Omit<ToastData, 'id'>) => {
@@ -279,26 +282,25 @@ export function ToastProvider({ children, maxToasts = MAX_TOASTS }: ToastProvide
       };
 
       setToasts((prev) => {
-        // 🔥 Limit max toasts - remove oldest if exceeding
         const updated = [newToast, ...prev];
         return updated.slice(0, maxToasts);
       });
 
       // Auto dismiss
       if (newToast.duration && newToast.duration > 0) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
           dismissToast(id);
         }, newToast.duration);
+
+        timersRef.current.set(id, timer as unknown as number);
       }
     },
-    [maxToasts]
+    [maxToasts, dismissToast]
   );
 
-  const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
-
   const dismissAll = useCallback(() => {
+    timersRef.current.forEach((timer) => clearTimeout(timer));
+    timersRef.current.clear();
     setToasts([]);
   }, []);
 
@@ -312,6 +314,14 @@ export function ToastProvider({ children, maxToasts = MAX_TOASTS }: ToastProvide
     },
     [addToast]
   );
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach((timer) => clearTimeout(timer));
+      timersRef.current.clear();
+    };
+  }, []);
 
   const contextValue: ToastContextType = {
     toast: addToast,
@@ -329,7 +339,13 @@ export function ToastProvider({ children, maxToasts = MAX_TOASTS }: ToastProvide
         {children}
         <View className="pointer-events-box-none absolute left-0 right-0 top-0 z-[1000]">
           {toasts.map((toast, index) => (
-            <Toast key={toast.id} {...toast} index={index} onDismiss={dismissToast} />
+            <Toast
+              key={toast.id}
+              {...toast}
+              index={index}
+              totalToasts={toasts.length}
+              onDismiss={dismissToast}
+            />
           ))}
         </View>
       </GestureHandlerRootView>

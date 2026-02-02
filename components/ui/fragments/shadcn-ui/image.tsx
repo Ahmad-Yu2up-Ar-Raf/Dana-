@@ -49,7 +49,7 @@ export const Image = forwardRef<ExpoImage, ImageProps>(
         case 'circle':
           return 'rounded-full';
         case 'rounded':
-          return 'rounded-xl';
+          return 'rounded-lg';
         default:
           return '';
       }

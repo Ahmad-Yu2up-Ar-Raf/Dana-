@@ -65,18 +65,9 @@ export function Onboarding({
   const [currentStep, setCurrentStep] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const translateX = useSharedValue(0);
-  const backgroundColor = useThemeColor({
-    light: THEME.light.background,
-    dark: THEME.dark.background,
-  });
-  const primaryColor = useThemeColor({
-    light: THEME.light.primary,
-    dark: THEME.dark.primary,
-  });
-  const mutedColor = useThemeColor({
-    light: THEME.light.mutedForeground,
-    dark: THEME.dark.mutedForeground,
-  });
+  const backgroundColor = THEME.light.background;
+  const primaryColor = THEME.light.primary;
+  const mutedColor = THEME.light.mutedForeground;
 
   const isLastStep = currentStep === steps.length - 1;
   const isFirstStep = currentStep === 0;
@@ -230,7 +221,7 @@ export function Onboarding({
       {/* Navigation Buttons */}
       <View style={styles.buttonContainer}>
         {!isFirstStep && (
-          <Button variant="outline" onPress={handleBack} className="flex-1  ">
+          <Button variant="outline" onPress={handleBack} className="flex-1">
             <Text>{backButtonText}</Text>
           </Button>
         )}
@@ -304,10 +295,10 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    height: 60, 
+    height: 80,
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingBottom: 20,
+    paddingBottom: 50,
     gap: 12,
   },
   fullWidthButton: {

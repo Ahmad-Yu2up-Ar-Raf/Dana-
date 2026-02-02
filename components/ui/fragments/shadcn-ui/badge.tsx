@@ -46,7 +46,7 @@ export function Badge({ children, variant = 'default', className, textClassName 
   return (
     <View
       className={cn(
-        'items-center justify-center rounded-xl px-3 py-1.5',
+        'items-center justify-center rounded-lg px-3 py-1.5',
         getVariantClasses(),
         className
       )}>
