@@ -8,10 +8,11 @@ import {
   View,
   TextStyle,
   ViewStyle,
+  Keyboard,
 } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import { THEME } from '@/lib/theme';
-import { Input as TextInput } from '../../shadcn-ui/input';
+import { Input, Input as TextInput } from '../../shadcn-ui/input';
 import { Textarea } from '../../shadcn-ui/textarea';
 import Animated, {
   useSharedValue,
@@ -21,6 +22,8 @@ import Animated, {
   interpolate,
   interpolateColor,
 } from 'react-native-reanimated';
+import { useGradualAnimation } from '@/hooks/useGradualAnimation';
+import { Button } from '../../shadcn-ui/button';
 
 // ============================================
 // GroupedInput Component
@@ -123,7 +126,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
     const primary = token('primary');
     const mutedForeground = token('mutedForeground');
     const destructive = token('destructive');
-    const background = token('background');
+    const background = token('card');
 
     const isTextarea = type === 'textarea';
 
@@ -166,9 +169,17 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
       };
     });
 
+    const toggleKeyboard = () => {
+      if (Keyboard.isVisible()) {
+        Keyboard.dismiss();
+      } else {
+        ref && 'current' in ref && ref.current?.focus();
+      }
+    };
     const handleFocus = (e: any) => {
       setIsFocused(true);
       onFocus?.(e);
+      toggleKeyboard();
     };
 
     const handleBlur = (e: any) => {
@@ -180,9 +191,10 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
       if (!rightComponent) return null;
       return typeof rightComponent === 'function' ? rightComponent() : rightComponent;
     };
+    const { height } = useGradualAnimation();
 
     return (
-      <Pressable
+      <Button
         onPress={() => ref && 'current' in ref && ref.current?.focus()}
         disabled={disabled}
         className={cn(disabled ? 'opacity-60' : 'opacity-100')}>
@@ -230,7 +242,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
                   ? 'border-destructive' // Error tetap merah meski focused
                   : isFocused
                     ? 'border-primary' // Focus biru kalau gak error
-                    : 'border-muted-foreground/50' // Default
+                    : 'border-border' // Default
               )}>
               <View className="relative flex-1">
                 {/* Animated Floating Label */}
@@ -252,7 +264,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
                   </Animated.Text>
                 )}
 
-                <TextInput
+                <Input
                   ref={ref}
                   editable={!disabled}
                   selectionColor={primary as any}
@@ -274,7 +286,7 @@ export const GroupedInputItem = forwardRef<TextInputB, GroupedInputItemProps>(
 
           {error && showError && <Text className="mt-1 text-sm text-destructive">* {error}</Text>}
         </View>
-      </Pressable>
+      </Button>
     );
   }
 );

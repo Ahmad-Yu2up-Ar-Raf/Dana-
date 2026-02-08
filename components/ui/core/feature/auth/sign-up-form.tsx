@@ -1,88 +1,39 @@
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
-
 import {
   GroupedInput,
   GroupedInputItem,
 } from '@/components/ui/fragments/custom-ui/form/input-form';
 import { Icon } from '@/components/ui/fragments/shadcn-ui/icon';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
-import { useToast } from '@/components/ui/fragments/shadcn-ui/toast';
-import { useSignUp } from '@clerk/clerk-expo';
-import { router } from 'expo-router';
-import { Eye, EyeOffIcon, Lock, Mail } from 'lucide-react-native';
-import * as React from 'react';
-import { TextInput, View } from 'react-native';
-
-import { useFormValidation, validationRules } from '@/hooks/Useformvalidation';
 import { cn } from '@/lib/utils';
+import { Spinner } from '@/components/ui/fragments/shadcn-ui/spinner';
+import { Eye, EyeOffIcon } from 'lucide-react-native';
+import * as React from 'react';
+import { useSignUp } from '@/hooks/useSignup';
 
 export function SignUpForm() {
-  const { signUp, isLoaded } = useSignUp();
-  const { success, error: showError } = useToast();
-
-  const emailRef = React.useRef<TextInput>(null!);
-  const passwordRef = React.useRef<TextInput>(null!);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const {
     formData,
     errors,
     touched,
+    isSubmitting,
+    emailRef,
+    passwordRef,
     handleChange,
     handleBlur,
     handleSubmit,
-    registerField,
-    setFieldError,
-  } = useFormValidation({
-    initialValues: {
-      email: '',
-      password: '',
-    },
-    onSubmit: async (values) => {
-      if (!isLoaded) return;
-
-      try {
-        await signUp.create({
-          emailAddress: values.email,
-          password: values.password,
-        });
-
-        await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-
-        success('Verification Sent', 'Please check your email for the verification code.');
-        router.push(`/(auth)/verify-email?email=${values.email}`);
-      } catch (err) {
-        if (err instanceof Error) {
-          const isEmailMessage =
-            err.message.toLowerCase().includes('identifier') ||
-            err.message.toLowerCase().includes('email');
-
-          if (isEmailMessage) {
-            setFieldError('email', err.message);
-          } else {
-            setFieldError('password', err.message);
-          }
-          showError('Sign Up Failed', err.message);
-          return;
-        }
-        console.error(JSON.stringify(err, null, 2));
-        showError('Error', 'An unexpected error occurred. Please try again.');
-      }
-    },
-  });
-  const [showPassword, setShowPassword] = React.useState(false);
-  React.useEffect(() => {
-    registerField({ name: 'email', rules: validationRules.email, ref: emailRef });
-    registerField({ name: 'password', rules: validationRules.password, ref: passwordRef });
-  }, [registerField]);
+  } = useSignUp();
 
   return (
     <>
       <GroupedInput>
         <GroupedInputItem
+          disabled={isSubmitting}
           ref={emailRef}
           label="Email"
           placeholder="m@example.com"
-          icon={Mail}
           value={formData.email}
           onChangeText={handleChange('email')}
           onBlur={handleBlur('email')}
@@ -94,11 +45,10 @@ export function SignUpForm() {
           onSubmitEditing={() => passwordRef.current?.focus()}
         />
         <GroupedInputItem
-          disabled={!isLoaded}
+          disabled={isSubmitting}
           ref={passwordRef}
           label="Password"
           placeholder="••••••"
-          icon={Lock}
           value={formData.password}
           onChangeText={handleChange('password')}
           onBlur={handleBlur('password')}
@@ -108,7 +58,7 @@ export function SignUpForm() {
           returnKeyType="send"
           rightComponent={
             <Button
-              disabled={!isLoaded}
+              disabled={isSubmitting}
               variant="ghost"
               className="absolute right-0 bg-none"
               onPress={() => setShowPassword(!showPassword)}>
@@ -138,8 +88,9 @@ export function SignUpForm() {
         />
       </GroupedInput>
 
-      <Button className="w-full" onPress={handleSubmit}>
-        <Text>Continue</Text>
+      <Button disabled={isSubmitting} className="w-full gap-2" onPress={handleSubmit}>
+        {isSubmitting && <Spinner className="text-primary-foreground" size="sm" />}
+        <Text>{isSubmitting ? 'Creating Account...' : 'Continue'}</Text>
       </Button>
     </>
   );

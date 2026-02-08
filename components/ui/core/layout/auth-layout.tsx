@@ -44,11 +44,11 @@ const AuthLayout = ({
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerClassName="sm:flex-1 items-center justify-center p-4 py-18 sm:py-4 sm:p-6 mt-safe content-center "
-      keyboardDismissMode="interactive">
-      <Card className="relative flex h-fit w-full max-w-sm content-center   m-auto justify-center gap-5 overflow-hidden border-0 bg-background p-7 shadow-none sm:border-border dark:bg-foreground">
+      keyboardDismissMode="interactive"
+      contentContainerClassName="sm:flex-1 items-center justify-center    h-full  sm:py-4 sm:p-6    content-center  bg-card">
+      <Card className="relative m-auto flex h-full w-full max-w-sm content-center justify-center gap-3 border-0 bg-card p-7 shadow-none sm:border-border">
         <CardHeader className="relative mb-3 flex w-full flex-col gap-0 p-0">
-          <View className="relative -mt-[8em] mb-4 flex h-fit max-h-[25em] w-full content-center items-center justify-center overflow-hidden">
+          <View className="relative -mt-[6em] mb-4 flex h-fit max-h-[25em] w-full content-center items-center justify-center overflow-hidden">
             <View
               className={cn(
                 'flex h-fit scale-[.45] content-center items-center overflow-hidden pt-[20em]',
@@ -63,7 +63,7 @@ const AuthLayout = ({
           </CardDescription>
         </CardHeader>
         <CardContent className="mb-0 gap-4 p-0 dark:bg-foreground">
-          <View className="gap-5">{props.children}</View>
+          <View className="gap-4">{props.children}</View>
         </CardContent>
         {signInGoogleButton && (
           <>

@@ -65,7 +65,7 @@ export function Onboarding({
   const [currentStep, setCurrentStep] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const translateX = useSharedValue(0);
-  const backgroundColor = THEME.light.background;
+  const backgroundColor = THEME.light.card;
   const primaryColor = THEME.light.primary;
   const mutedColor = THEME.light.mutedForeground;
 
@@ -135,20 +135,23 @@ export function Onboarding({
     if (!showProgress) return null;
 
     return (
-      <View style={styles.progressContainer}>
-        {steps.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.progressDot,
-              {
-                backgroundColor: index === currentStep ? primaryColor : mutedColor,
-                opacity: index === currentStep ? 1 : 0.3,
-              },
-            ]}
-          />
-        ))}
-      </View>
+      <>
+        <View style={styles.progressContainer} className="relative z-20">
+          {steps.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.progressDot,
+                {
+                  backgroundColor: index === currentStep ? primaryColor : mutedColor,
+                  opacity: index === currentStep ? 1 : 0.3,
+                },
+              ]}
+            />
+          ))}
+        </View>
+    
+      </>
     );
   };
 

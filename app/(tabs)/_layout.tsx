@@ -1,48 +1,149 @@
-import { Platform, ColorValue, ImageSourcePropType, Pressable } from 'react-native';
+// app/(tabs)/_layout.tsx - FIXED: Proper Keyboard Avoidance
+
+import { Platform, ColorValue, ImageSourcePropType, Keyboard } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { THEME } from '@/lib/theme';
 import { Label, NativeTabs, VectorIcon, Icon as TabIcon } from 'expo-router/unstable-native-tabs';
 import { View } from '@/components/ui/fragments/shadcn-ui/view';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
-import { useRouter, usePathname } from 'expo-router';
-import React, { useMemo } from 'react';
-import { cn } from '@/lib/utils';
+import { useRouter, usePathname, Stack } from 'expo-router';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 
 type VectorIconFamily = {
   getImageSource: (name: string, size: number, color: ColorValue) => Promise<ImageSourcePropType>;
 };
 
-// ✅ BEST PRACTICE: Floating Pay Button with Pressable (direct control)
+// ✅ FLOATING PAY BUTTON - Fixed Keyboard Handling
 function FloatingPayButton() {
   const router = useRouter();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
   const isActive = pathname.includes('(pay)');
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // ✅ Animated values
+  const animatedBottom = useSharedValue(insets.bottom + 16);
+  const animatedOpacity = useSharedValue(1);
+  const animatedScale = useSharedValue(1);
+
+  // ✅ Listen to keyboard events
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      setIsKeyboardVisible(true);
+
+      // ✅ OPTION 1: Hide button when keyboard appears
+      // animatedOpacity.value = withTiming(0, {
+      //   duration: 200,
+      //   easing: Easing.out(Easing.ease),
+      // });
+      // animatedScale.value = withTiming(0.8, {
+      //   duration: 200,
+      //   easing: Easing.out(Easing.ease),
+      // });
+
+      // ✅ OPTION 2: Keep button just above tab bar (not too high)
+      // Uncomment this if you prefer button to stay visible:
+      // animatedBottom.value = withTiming(80, {
+      //   duration: event.duration || 250,
+      //   easing: Easing.out(Easing.exp),
+      // });
+    });
+
+    const hideSubscription = Keyboard.addListener(hideEvent, (event) => {
+      setIsKeyboardVisible(false);
+
+      // ✅ Show button when keyboard hides
+      // animatedOpacity.value = withTiming(1, {
+      //   duration: 200,
+      //   easing: Easing.out(Easing.ease),
+      // });
+      // animatedScale.value = withTiming(1, {
+      //   duration: 200,
+      //   easing: Easing.out(Easing.ease),
+      // });
+
+      // ✅ Return to original position
+      animatedBottom.value = withTiming(insets.bottom + 16, {
+        duration: event.duration || 250,
+        easing: Easing.out(Easing.exp),
+      });
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, [insets.bottom]);
+
+  // ✅ Update bottom position when safe area changes
+  useEffect(() => {
+    if (!isKeyboardVisible) {
+      animatedBottom.value = insets.bottom + 18;
+    }
+  }, [insets.bottom, isKeyboardVisible]);
+
   const handlePress = () => {
+    Keyboard.dismiss();
     router.push('/(tabs)/(pay)');
   };
 
+  // ✅ Animated style with opacity and scale
+  const animatedStyle = useAnimatedStyle(() => ({
+    bottom: animatedBottom.value,
+    opacity: animatedOpacity.value,
+    transform: [{ translateX: -40 }, { scale: animatedScale.value }],
+  }));
+
   return (
-    <Button
-      onPress={handlePress}
-      style={{
-        position: 'absolute',
-        bottom: 30, // Position from bottom of screen (adjust based on tab bar height)
-        left: '50%', // Center horizontally
-        marginLeft: -38, // Half of button width (64/2) to center
-        zIndex: 100, // Ensure it's above everything
-      }}
-      className="size-20 flex-col items-center justify-center gap-1 rounded-full bg-primary shadow-2xl shadow-primary/50 active:scale-95">
-      <MaterialCommunityIcons name="qrcode-scan" size={23} color="white" />
-      <Text className="relative text-center text-[13px] font-semibold text-primary-foreground">
-        Pay
-      </Text>
-    </Button>
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          left: '50%',
+          zIndex: 1000,
+        },
+        animatedStyle,
+      ]}
+      pointerEvents={isKeyboardVisible ? 'none' : 'auto'} // ✅ Disable interaction when hidden
+    >
+      <Pressable onPress={handlePress}>
+        <Button
+          className="size-20 flex-col items-center justify-center gap-1 rounded-full border-4 border-card"
+          style={{
+            ...Platform.select({
+              ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: isActive ? 0.4 : 0.3,
+                shadowRadius: 8,
+              },
+              android: {
+                elevation: isActive ? 12 : 8,
+              },
+            }),
+          }}>
+          <MaterialIcons name="qr-code-scanner" size={32} color="white" />
+          <Text style={{ fontSize: 12, fontWeight: '600', color: 'white' }}>Bayar</Text>
+        </Button>
+      </Pressable>
+    </Animated.View>
   );
 }
 
-// ✅ Proper TypeScript interface without 'any' or 'unknown'
 interface NativeTabsConfig extends React.PropsWithChildren {
   backgroundColor: string;
   badgeBackgroundColor: string;
@@ -59,10 +160,10 @@ interface NativeTabsConfig extends React.PropsWithChildren {
 }
 
 export default function TabsLayout() {
+  const pathname = usePathname();
   const tintColor = THEME.light.primary;
   const backgroundColor = THEME.light.card;
   const inactiveTintColor = THEME.light.mutedForeground;
-  const borderColor = THEME.light.border;
 
   const labelSelectedStyle = useMemo(() => ({ color: tintColor }), [tintColor]);
 
@@ -75,14 +176,11 @@ export default function TabsLayout() {
     [inactiveTintColor]
   );
 
-  // ✅ Tab bar configuration
   const tabBarConfig = useMemo(
     () => ({
       paddingTop: 8,
       height: 70,
       backgroundColor,
-      borderTopWidth: 1,
-      borderTopColor: borderColor,
       ...Platform.select({
         android: { elevation: 8 },
         ios: {
@@ -93,65 +191,79 @@ export default function TabsLayout() {
         },
       }),
     }),
-    [backgroundColor, borderColor]
+    [backgroundColor]
   );
 
+  // ✅ Hide tabs on activity route
+  const shouldShowTabs = !pathname.includes('/(activity)');
+
   return (
-    <View className="flex-1">
-      {/* ✅ NativeTabs - Type assertion for extended props */}
-      <NativeTabs
-        {...({
-          backgroundColor,
-          badgeBackgroundColor: tintColor,
-          labelStyle: nativeLabelStyle,
-          iconColor: inactiveTintColor,
-          tintColor,
-          labelVisibilityMode: 'labeled',
-          indicatorColor: THEME.light.muted,
-          disableTransparentOnScrollEdge: true,
-          tabBarStyle: tabBarConfig, // This might show TS warning but will work at runtime
-        } as NativeTabsConfig & { tabBarStyle: typeof tabBarConfig })}>
-        {/* Home Tab */}
-        <NativeTabs.Trigger name="(home)/index">
-          <TabIcon
-            src={<VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="home" />}
-            selectedColor={tintColor}
-          />
-          <Label selectedStyle={labelSelectedStyle}>Home</Label>
-        </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="(history)/index">
-          <TabIcon
-            src={<VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="history" />}
-            selectedColor={tintColor}
-          />
-          <Label selectedStyle={labelSelectedStyle}>Activity</Label>
-        </NativeTabs.Trigger>
+    <>
+      <Stack.Screen key={'header'} options={{ headerShown: false }} />
 
-        {/* ✅ Pay Tab - Spacer only (visual handled by FloatingPayButton) */}
-        <NativeTabs.Trigger name="(pay)/index">
-          <View className="h-12 w-12 opacity-0" />
-          <Label hidden>Pay</Label>
-        </NativeTabs.Trigger>
+      {shouldShowTabs ? (
+        <View style={{ flex: 1 }}>
+          <NativeTabs
+            {...({
+              backgroundColor,
+              badgeBackgroundColor: tintColor,
+              labelStyle: nativeLabelStyle,
+              iconColor: inactiveTintColor,
+              tintColor,
+              labelVisibilityMode: 'labeled',
+              indicatorColor: THEME.light.muted,
+              disableTransparentOnScrollEdge: true,
+              tabBarStyle: tabBarConfig,
+            } as NativeTabsConfig & { tabBarStyle: typeof tabBarConfig })}>
+            <NativeTabs.Trigger name="(home)">
+              <TabIcon
+                src={<VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="home" />}
+                selectedColor={tintColor}
+              />
+              <Label selectedStyle={labelSelectedStyle}>Beranda</Label>
+            </NativeTabs.Trigger>
 
-        {/* Profile Tab */}
-        <NativeTabs.Trigger name="(wallet)/index">
-          <TabIcon
-            src={<VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="wallet" />}
-            selectedColor={tintColor}
-          />
-          <Label selectedStyle={labelSelectedStyle}>Wallet</Label>
-        </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="(profile)/index">
-          <TabIcon
-            src={<VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="account" />}
-            selectedColor={tintColor}
-          />
-          <Label selectedStyle={labelSelectedStyle}>Profile</Label>
-        </NativeTabs.Trigger>
-      </NativeTabs>
+            <NativeTabs.Trigger name="(activity)">
+              <TabIcon
+                src={
+                  <VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="history" />
+                }
+                selectedColor={tintColor}
+              />
+              <Label selectedStyle={labelSelectedStyle}>Aktifitas</Label>
+            </NativeTabs.Trigger>
 
-      {/* ✅ Floating Pay Button - Positioned absolutely with inline styles */}
-      <FloatingPayButton />
-    </View>
+            <NativeTabs.Trigger name="(pay)">
+              <Label hidden>.</Label>
+            </NativeTabs.Trigger>
+
+            <NativeTabs.Trigger name="(wallet)">
+              <TabIcon
+                src={
+                  <VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="wallet" />
+                }
+                selectedColor={tintColor}
+              />
+              <Label selectedStyle={labelSelectedStyle}>Dompet</Label>
+            </NativeTabs.Trigger>
+
+            <NativeTabs.Trigger name="(profile)">
+              <TabIcon
+                src={
+                  <VectorIcon family={MaterialCommunityIcons as VectorIconFamily} name="account" />
+                }
+                selectedColor={tintColor}
+              />
+              <Label selectedStyle={labelSelectedStyle}>Saya</Label>
+            </NativeTabs.Trigger>
+          </NativeTabs>
+
+          {/* ✅ Floating button with proper keyboard handling */}
+          <FloatingPayButton />
+        </View>
+      ) : (
+        <View style={{ flex: 1 }} />
+      )}
+    </>
   );
 }

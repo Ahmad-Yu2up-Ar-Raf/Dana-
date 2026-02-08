@@ -8,149 +8,205 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/fragments/shadcn-ui/card';
-import { Button, buttonTextVariants, buttonVariants } from '../../shadcn-ui/button';
-import { Link } from '../../shadcn-ui/link';
-import { Icon } from '../../shadcn-ui/icon';
-import {
-  Banknote,
-  ChevronRight,
-  Crosshair,
-  Gamepad,
-  Gamepad2,
-  Goal,
-  Grid,
-  History,
-  LayoutDashboard,
-  Lightbulb,
-  LucideIcon,
-  Phone,
-  Target,
-  TicketPercent,
-  Wallet,
-} from 'lucide-react-native';
+import { Button } from '../../shadcn-ui/button';
+
+import { ChevronRight, History } from 'lucide-react-native';
 import { cn } from '@/lib/utils';
 import { View } from '../../shadcn-ui/view';
 import { Text } from '../../shadcn-ui/text';
-import { Href } from 'expo-router';
-import Qris from '@/assets/svg/brand/qris';
-import { SvgProps } from 'react-native-svg';
-import { Separator } from '../../shadcn-ui/separator';
 
-interface HistoryCardProps {
+import { Separator } from '../../shadcn-ui/separator';
+import { Icon } from '../../shadcn-ui/icon';
+import { router } from 'expo-router';
+
+import ActivityCard from './activity-card';
+
+export interface HistoryCardProps {
   label: string;
   date: string;
   amount: string;
   status?: 'income' | 'expense';
-  Icon: React.ComponentType<SvgProps & SVGProps<SVGSVGElement>>;
+  Img: string | any;
 }
 
-const HistoryLink: HistoryCardProps[] = [
+export const HistoryLink: HistoryCardProps[] = [
   {
     label: 'Kopi Pelakor',
-    Icon: Qris,
-    date: 'Today, 12:45 PM',
+    Img: require('@/assets/images/brand/linkaja.png'),
+    date: '2026-01-25 11:42:23.357',
     amount: '10.000',
     status: 'expense',
   },
   {
-    label: 'Kopi Pelakor',
-    Icon: Qris,
-    date: 'Today, 12:45 PM',
-    amount: '10.000',
+    label: 'GoFood Order',
+    Img: require('@/assets/images/brand/gojek.png'),
+    date: '2026-02-06 09:20:12.120',
+    amount: '45.000',
     status: 'expense',
   },
   {
-    label: 'Kopi Pelakor',
-    Icon: Qris,
-    date: 'Today, 12:45 PM',
-    amount: '10.000',
+    label: 'Kirim ke Budi',
+    Img: require('@/assets/images/brand/bca.jpg'),
+    date: '2026-02-06 18:40:05.004',
+    amount: '200.000',
+    status: 'expense',
+  },
+
+  {
+    label: 'Cashback Promo',
+    Img: require('@/assets/images/brand/dana.png'),
+    date: '2026-02-05 20:15:45.999',
+    amount: '15.000',
+    status: 'income',
+  },
+  {
+    label: 'GrabFood Meal',
+    Img: require('@/assets/images/brand/grabfood.jpg'),
+    date: '2026-02-04 19:50:10.222',
+    amount: '62.500',
     status: 'expense',
   },
   {
-    label: 'Kopi Pelakor',
-    Icon: Qris,
-    date: 'Today, 12:45 PM',
-    amount: '10.000',
+    label: 'ShopeePay Bayar',
+    Img: require('@/assets/images/brand/shopeepay.jpg'),
+    date: '2026-02-03 15:10:07.777',
+    amount: '120.000',
     status: 'expense',
+  },
+  {
+    label: 'OVO Topup',
+    Img: require('@/assets/images/brand/ovo.jpg'),
+    date: '2026-02-02 11:05:55.001',
+    amount: '250.000',
+    status: 'income',
+  },
+  {
+    label: 'LinkAja Scan',
+    Img: require('@/assets/images/brand/linkaja.png'),
+    date: '2026-01-30 17:33:22.450',
+    amount: '20.000',
+    status: 'expense',
+  },
+  {
+    label: 'Topup BCA',
+    Img: require('@/assets/images/brand/bca.jpg'),
+    date: '2026-02-01 09:05:33.111',
+    amount: '500.000',
+    status: 'income',
+  },
+  {
+    label: 'Indomaret Belanja',
+    Img: require('@/assets/images/brand/indomaret.jpg'),
+    date: '2026-01-29 10:00:00.000',
+    amount: '75.000',
+    status: 'expense',
+  },
+  {
+    label: 'Alfamart Bayar',
+    Img: require('@/assets/images/brand/alfamart.jpg'),
+    date: '2026-01-28 16:12:45.650',
+    amount: '42.000',
+    status: 'expense',
+  },
+  {
+    label: 'PLN Token',
+    Img: require('@/assets/images/brand/pln.jpg'),
+    date: '2026-01-27 09:00:00.123',
+    amount: '150.000',
+    status: 'expense',
+  },
+  {
+    label: 'BPJS Bayar',
+    Img: require('@/assets/images/brand/bpjs.jpg'),
+    date: '2026-01-25 08:30:12.999',
+    amount: '35.000',
+    status: 'expense',
+  },
+  {
+    label: 'Tiket KAI',
+    Img: require('@/assets/images/brand/traveloka.jpg'),
+    date: '2026-01-24 19:00:01.321',
+    amount: '95.000',
+    status: 'expense',
+  },
+  {
+    label: 'Netflix Langganan',
+    Img: require('@/assets/images/brand/netflix.jpg'),
+    date: '2026-01-23 09:00:00.010',
+    amount: '59.000',
+    status: 'expense',
+  },
+  {
+    label: 'Spotify Premium',
+    Img: require('@/assets/images/brand/spotify.jpg'),
+    date: '2026-01-22 09:05:30.450',
+    amount: '49.000',
+    status: 'expense',
+  },
+  {
+    label: 'Tokopedia Bayar',
+    Img: require('@/assets/images/brand/tokopedia.jpg'),
+    date: '2026-01-21 12:00:00.000',
+    amount: '180.000',
+    status: 'expense',
+  },
+  {
+    label: 'Refund Order',
+    Img: require('@/assets/images/brand/dana.png'),
+    date: '2026-01-19 14:15:00.777',
+    amount: '75.000',
+    status: 'income',
+  },
+  {
+    label: 'Promo Cashback',
+    Img: require('@/assets/images/brand/shopeepay.jpg'),
+    date: '2026-01-18 11:11:11.111',
+    amount: '10.000',
+    status: 'income',
   },
 ];
+
 export default function HistoryCard() {
   return (
-    <Card className="h-fit w-full max-w-sm gap-4 rounded-3xl bg-card px-0 pt-3 pb-6 text-primary-foreground shadow-sm">
-      <CardHeader className="w-full flex-row items-center justify-between border-b border-border bg-card px-6 py-2 pr-0 shadow-sm">
-        <CardTitle className="p-0 text-xl font-bold tracking-tight">
-          <Icon as={History} size={20} className="sr-only inline-block text-foreground" />
-          History
-        </CardTitle>
-        <Link href="/(tabs)/(home)" className={cn(buttonVariants({ variant: 'link' }), 'gap-0')}>
-          <View className="flex-row gap-1">
-            <Text
-              className={cn(
-                buttonTextVariants({ variant: 'link', size: 'sm' }),
-                'mx-0 p-0 text-xs'
-              )}>
-              View All
-            </Text>
-            <Icon as={ChevronRight} size={15} className="mx-0 ml-0 text-primary" />
-          </View>
-        </Link>
-        {/* <View className="flex-row items-center gap-5">
-          <Image
-            source={require('@/assets/images/reward.png')}
-            resizeMode="contain"
-            className="size-10"
-            // style={LOGO_STYLE}
-          />
-          <View className="gap-1">
-            <CardTitle className="font-semibold">Alipay+ Rewards</CardTitle>
-            <CardDescription className="text-[12.5px] tracking-wide text-orange-500">
-              Berhadiah 2,5 Jt!
-            </CardDescription>
-          </View>
-        </View> */}
-        {/* <Button size={'sm'}>
-          <Text className="px-1.5 text-primary-foreground">Claim Now</Text>
-        </Button> */}
-      </CardHeader>
-      <CardContent className="flex flex-col justify-between gap-4 p-0 px-3">
-        {HistoryLink.map((item, index) => (
-          <>
-            <Button
-              key={index}
-              variant={'ghost'}
-              className={cn(
-                // buttonVariants({ variant: 'ghost' }),
+    <Card className="h-fit w-full max-w-sm gap-0 rounded-3xl bg-card pb-6 pt-6 text-primary-foreground shadow-sm">
+      <CardHeader className="w-full flex-row items-center gap-3.5 rounded-2xl bg-card px-6 py-0">
+        <Button variant={'outline'} size={'icon'} className="size-12 rounded-full">
+          <Icon as={History} size={29} className="inline-block text-primary" />
+        </Button>
+        <View>
+          <CardTitle className="p-0 text-xl font-semibold tracking-tight">Riwayat</CardTitle>
 
-                'w-full flex-row justify-between px-2 py-0 active:bg-accent'
-              )}>
-              <View className="h-fit flex-row items-center gap-4">
-                <View className="flex h-full w-fit flex-col content-center items-center justify-center rounded-full border border-border p-2.5">
-                  <Image
-                    source={require('@/assets/images/linkaja-logo.png')}
-                    resizeMode="cover"
-                    className="m-auto size-5"
-                    // style={LOGO_STYLE}
-                  />
-                </View>
-                <View>
-                  <Text variant={'h3'}>{item.label}</Text>
-                  <Text
-                    variant={'small'}
-                    className="text-xs tracking-wide text-muted-foreground/50">
-                    {item.date}
-                  </Text>
-                </View>
-              </View>
-              <Text
-                variant={'large'}
-                className={cn(item.status === 'income' ? 'text-green-500' : 'text-red-500')}>
-                {item.status === 'income' ? '+' : '-'} Rp {item.amount}
-              </Text>
-            </Button>
-            {index !== HistoryLink.length - 1 && <Separator />}
-          </>
-        ))}
+          <CardDescription className="p-0 text-sm tracking-wide text-muted-foreground">
+            Aktivitas Terbaru{' '}
+          </CardDescription>
+        </View>
+      </CardHeader>
+      <Separator className="m-auto mb-1 mt-4 w-[19em]" />
+      <CardContent className="flex flex-col justify-between gap-0 px-2 py-1">
+        {HistoryLink.slice(0, 3).map((item, index) => {
+          return (
+            <ActivityCard
+              key={index}
+              Img={item.Img}
+              label={item.label}
+              date={item.date}
+              amount={item.amount}
+              status={item.status}
+              isLastStep={index === 2}
+            />
+          );
+        })}
       </CardContent>
+      <Separator className="m-auto mb-4 mt-3 w-[19em]" />
+      <Button
+        onPress={() => router.push('/(tabs)/(activity)')}
+        variant={'ghost'}
+        className={cn('m-auto w-[19em] gap-2 border border-primary')}>
+        <Text className={cn('mx-0 p-0 text-xs text-primary group-active:text-primary/80')}>
+          Lihat Semua
+        </Text>
+        <Icon as={ChevronRight} size={15} className="mx-0 ml-0 text-primary" />
+      </Button>
     </Card>
   );
 }

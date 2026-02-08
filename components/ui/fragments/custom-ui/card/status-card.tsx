@@ -11,49 +11,44 @@ import {
 import { Button } from '../../shadcn-ui/button';
 import { Text } from '../../shadcn-ui/text';
 import { Icon } from '../../shadcn-ui/icon';
-import { Copy, Plus } from 'lucide-react-native';
+import { Copy, LucideIcon, Plus } from 'lucide-react-native';
 import { Image } from 'react-native';
 import { cn } from '@/lib/utils';
 
-export type componentProps = {
+export type componentPropsStatusCard = {
   className?: string;
-  primaryColor?: 'default' | 'orange' | 'green';
+  primaryColor?: 'default' | 'orange' | 'purple';
   title?: string;
   subTitle?: string;
-  actionButton?: React.ReactNode;
-  Logo?: React.ReactNode;
-  clipboardText?: string;
+  actionButton?: string;
+  Logo?: string | any;
+  actionFunction?: () => void;
+  actionIcon?: LucideIcon;
+  rigthHeader?: React.ReactNode;
 };
-
-const actionButtonDefault = (
-  <Button size={'sm'} variant="secondary" className="h-[38px] gap-1.5 px-[18px]">
-    <Icon as={Plus} size={18} className="text-primary" />
-    <Text className="text-sm text-primary">Top Up</Text>
-  </Button>
-);
 
 export const THEME = {
   default: {
-    text: 'text-primary-foreground',
+    text: 'text-primary',
     background: 'bg-primary',
     border: 'border-primary',
     fill: 'fill-primary',
     foreground: 'text-primary-foreground',
   },
 
-  green: {
-    text: 'text-green-foreground',
-    background: 'bg-green',
-    border: 'border-green',
-    fill: 'fill-green',
-    foreground: 'text-green-foreground',
+  purple: {
+    text: 'text-purple-500',
+    background: 'bg-purple-500',
+    border: 'border-purple-500',
+    fill: 'fill-purple-500',
+    foreground: 'text-purple-50',
   },
   orange: {
-    text: 'text-orange-foreground',
-    background: 'bg-orange',
-    border: 'border-orange',
-    fill: 'fill-orange',
-    foreground: 'text-orange-foreground',
+    text: 'text-orange-500',
+    background: 'bg-orange-500',
+    border: 'border-orange-500',
+    fill: 'fill-orange-500',
+    foreground: 'text-orange-50',
   },
 
   // ✅ REMOVED: dark theme object - No longer needed
@@ -61,68 +56,35 @@ export const THEME = {
 
 const StatusCard = ({
   title = 'Rp 238.420',
-  subTitle = 'Your Balance',
+  subTitle = 'Saldo Utama',
   primaryColor = 'default',
-  actionButton = actionButtonDefault,
-  clipboardText = '5213 123 5678',
-  Logo = (
-    <Image
-      source={require('@/assets/images/logo-white.png')}
-      resizeMode="contain"
-      className={cn('size-10')}
-      // style={LOGO_STYLE}
-    />
-  ),
+  actionFunction,
+  actionIcon,
+  actionButton = 'Top Up',
+  rigthHeader,
+  Logo = require('@/assets/images/brand/app/logo-white.png'),
   ...props
-}: componentProps) => {
+}: componentPropsStatusCard) => {
   return (
     <Card
       className={cn(
-        'h-fit w-full max-w-[22.6em] gap-5 rounded-b-none rounded-t-3xl p-3.5',
+        'h-fit w-[22.4em] gap-5 rounded-b-none rounded-t-3xl p-3.5',
         THEME[primaryColor].background,
         THEME[primaryColor].text,
         props.className
       )}>
       <CardHeader className="w-full flex-row items-center justify-between p-0">
-        {Logo}
+        <Image
+          source={Logo}
+          resizeMode="contain"
+          className={cn(
+            'size-10',
+            Logo !== require('@/assets/images/brand/app/logo-white.png') && 'rounded-full bg-card'
+          )}
+          // style={LOGO_STYLE}
+        />
 
-        {clipboardText && (
-          <View className="flex flex-row items-center gap-2">
-            <Text
-              className={cn(
-                'text-sm font-medium leading-none tracking-tight',
-                THEME[primaryColor].foreground
-              )}>
-              {clipboardText}
-            </Text>
-            <Button
-              variant="secondary"
-              size={'sm'}
-              className="relative flex h-fit w-fit justify-center rounded-[4px] p-[4.5px]">
-              <View
-                className={cn(
-                  'relative -left-0.5 top-0.5 z-20 size-2.5 rounded-[3px] border border-background',
-                  THEME[primaryColor].background,
-                  THEME[primaryColor].fill
-                )}
-                style={{
-                  backgroundColor: '#108bea',
-                }}
-              />
-              <View
-                className={cn(
-                  'absolute bottom-[7px] right-[3.5px] z-10 size-2 rounded-[2px]',
-                  THEME[primaryColor].background,
-                  THEME[primaryColor].fill
-                )}
-                style={{
-                  backgroundColor: '#108bea',
-                }}
-              />
-              {/* <Icon as={Copy} size={12} className="text-primary" /> */}
-            </Button>
-          </View>
-        )}
+        {rigthHeader}
       </CardHeader>
       <CardContent>
         <View className="w-full justify-center gap-4"></View>
@@ -133,11 +95,26 @@ const StatusCard = ({
             className={cn('text-[15px] font-light tracking-wide', THEME[primaryColor].foreground)}>
             {subTitle}
           </CardDescription>
-          <CardTitle className={cn('text-[31px]', THEME[primaryColor].foreground)}>
+          <CardTitle className={cn('text-[31px] tracking-tighter', THEME[primaryColor].foreground)}>
             {title}
           </CardTitle>
         </View>
-        {actionButton}
+
+        {actionButton && (
+          <Button
+            onPress={actionFunction}
+            size={'sm'}
+            variant="secondary"
+            className={cn(
+              'h-[38px] gap-1.5 px-[18px]'
+              // THEME[primaryColor].background,
+            )}>
+            {actionButton == 'Top-up' && (
+              <Icon as={Plus} size={18} className={cn(THEME[primaryColor].text)} />
+            )}
+            <Text className={cn('text-sm', THEME[primaryColor].text)}>{actionButton}</Text>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

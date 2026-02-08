@@ -8,7 +8,7 @@
     --radius: 0.65rem;
 
     /* Background & Foreground */
-    --background: 0, 4%, 95%;
+    --background: 0, 0%, 96%;
     --foreground: 222.2 84% 4.9%;
 
     /* Card */
@@ -21,7 +21,7 @@
 
     /* Primary */
     --primary: 206, 87%, 49%;
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 130, 100%, 99%;
 
     /* Secondary */
     --secondary: 210 40% 96.1%;
@@ -37,7 +37,7 @@
 
     /* Destructive */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 130, 100%, 99%;
 
     /* Border & Input */
     --border: 214.3 31.8% 91.4%;

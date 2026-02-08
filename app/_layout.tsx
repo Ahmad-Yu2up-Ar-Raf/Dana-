@@ -25,7 +25,7 @@ export default function RootLayout() {
       {/* ✅ Always use light theme */}
       <ThemeProvider value={NAV_THEME.light}>
         {/* ✅ Always use dark status bar (for light background) */}
-        <StatusBar style="dark" />
+        <StatusBar style="light" />
         <ToastProvider>
           <Routes />
         </ToastProvider>
@@ -78,11 +78,14 @@ const SIGN_IN_SCREEN_OPTIONS = {
 };
 
 const SIGN_UP_SCREEN_OPTIONS = {
-  title: 'Sign up',
-  headerShown: false,
+  presentation: 'modal',
+  title: '',
+  headerTransparent: true,
+  gestureEnabled: false,
 } as const;
 
 const DEFAULT_AUTH_SCREEN_OPTIONS = {
   title: '',
-  headerShown: false,
+  headerShadowVisible: false,
+  headerTransparent: true,
 };

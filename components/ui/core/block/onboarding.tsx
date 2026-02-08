@@ -11,8 +11,8 @@ export const OnboardingPresets = {
   welcome: [
     {
       id: 'welcome',
-      title: 'Welcome to Our App',
-      description: 'Discover amazing features and get started with your journey.',
+      title: 'Selamat Datang di DANA',
+      description: 'Kelola uangmu, bayar, dan terima dengan mudah.',
       icon: (
         <View className="flex h-fit scale-[.55] content-center items-center justify-start overflow-hidden">
           <Onboarding1 className=" " />
@@ -21,8 +21,8 @@ export const OnboardingPresets = {
     },
     {
       id: 'features',
-      title: 'Powerful Features',
-      description: 'Experience cutting-edge functionality designed to make your life easier.',
+      title: 'Bayar & Kirim Cepat',
+      description: 'Transaksi instan untuk belanja, tagihan, dan transfer.',
       icon: (
         <View className="flex h-fit scale-[.55] content-center items-center justify-start overflow-hidden">
           <Onboarding2 className=" " />
@@ -31,8 +31,8 @@ export const OnboardingPresets = {
     },
     {
       id: 'personalize',
-      title: 'Personalize Your Experience',
-      description: 'Customize the app to match your preferences and workflow.',
+      title: 'Atur Sesuai Kamu',
+      description: 'Personalisasi fitur dan notifikasi sesuai kebutuhan.',
       icon: (
         <View className="flex h-fit scale-[.50] content-center items-center justify-start overflow-hidden">
           <Onboarding3 className=" " />
@@ -41,8 +41,8 @@ export const OnboardingPresets = {
     },
     {
       id: 'ready',
-      title: "You're All Set!",
-      description: "Everything is ready. Let's start exploring what you can achieve.",
+      title: 'Siap Digunakan',
+      description: 'Mulai pakai DANA — aman, cepat, dan terpercaya.',
       icon: (
         <View className="flex h-fit scale-[.55] content-center items-center justify-start overflow-hidden">
           <Onboarding4 className=" " />
@@ -52,6 +52,7 @@ export const OnboardingPresets = {
   ],
 };
 
+
 export function OnboardingDemo() {
   const { hasCompletedOnboarding, completeOnboarding, skipOnboarding } = useOnboarding();
 
@@ -60,17 +61,20 @@ export function OnboardingDemo() {
   }
 
   return (
-    <Onboarding
-      steps={OnboardingPresets.welcome}
-      onComplete={completeOnboarding}
-      onSkip={skipOnboarding}
-      showSkip={true}
-      showProgress={true}
-      swipeEnabled={true}
-      primaryButtonText="Get Started"
-      skipButtonText="Skip"
-      nextButtonText="Next"
-      backButtonText="Back"
-    />
+    <>
+      <Onboarding
+        steps={OnboardingPresets.welcome}
+        onComplete={completeOnboarding}
+        onSkip={skipOnboarding}
+        showSkip={true}
+        showProgress={true}
+        swipeEnabled={true}
+        primaryButtonText="Get Started"
+        skipButtonText="Skip"
+        nextButtonText="Next"
+        backButtonText="Back"
+      />
+      {/* <View className="absolute z-10 h-full w-full bg-card" /> */}
+    </>
   );
 }

@@ -1,11 +1,19 @@
+import BelanceCard from '@/components/ui/fragments/custom-ui/card/belance-card';
+import FeatureCard from '@/components/ui/fragments/custom-ui/card/feature-card';
+import ProfileCard from '@/components/ui/fragments/custom-ui/card/profile-card';
 import React from 'react';
 import { View, Text } from 'react-native';
 
+import { Wrapper } from '../(home)';
 const Index = () => {
   return (
-    <View className="flex-1 items-center justify-center">
-      <Text className="text-accent-foreground">News screen</Text>
-    </View>
+    <Wrapper edges={['bottom']}>
+      <ProfileCard />
+      <View className="flex-1 items-center gap-5 px-4">
+        <BelanceCard />
+        <FeatureCard />
+      </View>
+    </Wrapper>
   );
 };
 

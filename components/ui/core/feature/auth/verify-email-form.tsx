@@ -1,119 +1,70 @@
 import { Button } from '@/components/ui/fragments/shadcn-ui/button';
-
-import {
-  GroupedInput,
-  GroupedInputItem,
-} from '@/components/ui/fragments/custom-ui/form/input-form';
 import { Text } from '@/components/ui/fragments/shadcn-ui/text';
-import { useToast } from '@/components/ui/fragments/shadcn-ui/toast';
-import { useSignUp } from '@clerk/clerk-expo';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Hash } from 'lucide-react-native';
+import { View } from '@/components/ui/fragments/shadcn-ui/view';
+import { Spinner } from '@/components/ui/fragments/shadcn-ui/spinner';
+import { InputOTP } from '@/components/ui/fragments/shadcn-ui/input-otp';
+import { router } from 'expo-router';
 import * as React from 'react';
 import { type TextStyle } from 'react-native';
-import { View } from '@/components/ui/fragments/shadcn-ui/view';
+import { useVerifyEmail } from '@/hooks/Useverifyemail';
 
-const RESEND_CODE_INTERVAL_SECONDS = 30;
 const TABULAR_NUMBERS_STYLE: TextStyle = { fontVariant: ['tabular-nums'] };
 
 export function VerifyEmailForm() {
-  const { signUp, setActive, isLoaded } = useSignUp();
-  const { email = '' } = useLocalSearchParams<{ email?: string }>();
-  const { success, error: showError } = useToast();
+  const { code, error, email, isSubmitting, countdown, handleCodeChange, onSubmit, onResendCode } =
+    useVerifyEmail();
 
-  const [code, setCode] = React.useState('');
-  const [error, setError] = React.useState('');
-  const { countdown, restartCountdown } = useCountdown(RESEND_CODE_INTERVAL_SECONDS);
+  const otpRef = React.useRef<{ focus: () => void }>(null);
 
-  const validateForm = () => {
-    if (!code) {
-      setError('Verification code is required');
-      return false;
-    }
-
-    if (code.length < 6) {
-      setError('Code must be at least 6 characters');
-      return false;
-    }
-
-    setError('');
-    return true;
-  };
-
-  async function onSubmit() {
-    if (!validateForm()) {
-      showError('Validation Error', 'Please enter a valid verification code.');
-      return;
-    }
-
-    if (!isLoaded) return;
-
-    try {
-      const signUpAttempt = await signUp.attemptEmailAddressVerification({
-        code,
-      });
-
-      if (signUpAttempt.status === 'complete') {
-        await setActive({ session: signUpAttempt.createdSessionId });
-        success('Email Verified', 'Your account has been created successfully.');
-        return;
-      }
-
-      console.error(JSON.stringify(signUpAttempt, null, 2));
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showError('Verification Failed', err.message);
-        return;
-      }
-      console.error(JSON.stringify(err, null, 2));
-      showError('Error', 'An unexpected error occurred. Please try again.');
-    }
-  }
-
-  async function onResendCode() {
-    if (!isLoaded) return;
-
-    try {
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-      restartCountdown();
-      success('Code Resent', 'A new verification code has been sent to your email.');
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-        showError('Resend Failed', err.message);
-        return;
-      }
-      console.error(JSON.stringify(err, null, 2));
-      showError('Error', 'An unexpected error occurred. Please try again.');
-    }
-  }
+  // Auto-focus OTP input on mount
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      otpRef.current?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
-      <GroupedInput>
-        <GroupedInputItem
-          label="Code"
-          placeholder="123456"
-          icon={Hash}
+      {/* 🔥 InputOTP Component with auto-submit */}
+      <View className="items-center">
+        <InputOTP
+          ref={otpRef as React.RefObject<any>}
+          length={6}
           value={code}
-          onChangeText={setCode}
+          onChangeText={handleCodeChange}
           error={error}
-          keyboardType="numeric"
-          autoComplete="sms-otp"
-          textContentType="oneTimeCode"
-          autoCapitalize="none"
-          returnKeyType="send"
-          onSubmitEditing={onSubmit}
+          disabled={isSubmitting}
+          showCursor
+          containerClassName="w-full"
         />
-      </GroupedInput>
+      </View>
 
-      <Button variant="ghost" className="text-muted-foreground" size="sm" disabled={countdown > 0}>
+      {/* Loading indicator when submitting */}
+      {isSubmitting && (
+        <View className="items-center">
+          <View className="flex-row items-center gap-2">
+            <Spinner size="sm" className="text-primary" />
+            <Text className="text-sm text-muted-foreground">Verifying code...</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Resend button */}
+      <Button
+        variant="ghost"
+        className="text-muted-foreground"
+        size="sm"
+        disabled={countdown > 0 || isSubmitting}>
         <Text className="text-center text-xs">
           Didn&apos;t receive the code?
           <Text
-            onPress={onResendCode}
-            className="text-sm text-primary underline underline-offset-4">
+            onPress={countdown === 0 ? onResendCode : undefined}
+            className={
+              countdown === 0
+                ? 'text-sm text-primary underline underline-offset-4'
+                : 'text-sm text-muted-foreground'
+            }>
             {' '}
             Resend{' '}
           </Text>
@@ -125,52 +76,19 @@ export function VerifyEmailForm() {
         </Text>
       </Button>
 
-      <View className="gap-3">
-        <Button className="w-full" onPress={onSubmit}>
-          <Text>Continue</Text>
+      {/* Action buttons */}
+      <View className="gap-3 sr-only">
+        <Button
+          disabled={isSubmitting || code.length !== 6}
+          className="w-full gap-2"
+          onPress={onSubmit}>
+          {isSubmitting && <Spinner className="text-primary-foreground" size="sm" />}
+          <Text>{isSubmitting ? 'Verifying...' : 'Continue'}</Text>
         </Button>
-        <Button variant="link" className="mx-auto" onPress={router.back}>
+        <Button variant="link" className="mx-auto" disabled={isSubmitting} onPress={router.back}>
           <Text>Cancel</Text>
         </Button>
       </View>
     </>
   );
-}
-
-function useCountdown(seconds = 30) {
-  const [countdown, setCountdown] = React.useState(seconds);
-  const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const startCountdown = React.useCallback(() => {
-    setCountdown(seconds);
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    intervalRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }, [seconds]);
-
-  React.useEffect(() => {
-    startCountdown();
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [startCountdown]);
-
-  return { countdown, restartCountdown: startCountdown };
 }
